@@ -1,0 +1,43 @@
+{
+  "name": "profy",
+  "version": "0.0.1",
+  "description": "Stress test your app and measure performance",
+  "homepage": "https://github.com/thanpolas/profy",
+  "author": "Thanasis Polychronakis",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thanpolas/profy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thanpolas/profy/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/thanpolas/profy/blob/master/LICENSE-MIT"
+    }
+  ],
+  "contributors": [],
+
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.1",
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "keywords": [
+    "performance",
+    "profiling",
+    "testing",
+    "test",
+    "memory",
+    "speed"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://en.wikipedia.org/wiki/MIT_License"
+    }
+  ]
+}
