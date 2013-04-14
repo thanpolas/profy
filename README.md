@@ -21,7 +21,9 @@ The timing API is pretty simple, use the `start` function to start measuring, `l
 Example:
 
 ```js
-var ptime = require('profy/time');
+var Ptime = require('profy/time');
+
+var ptime = new Ptime();
 
 ptime.start();
 
@@ -50,7 +52,9 @@ Result will mark the ending of the test and crunch the collected data. It will r
 ## Memory Consumption
 
 ```js
-var pmem = require('profy/mem');
+var Pmem = require('profy/mem');
+
+var pmem = new Pmem();
 
 pmem.start();
 
@@ -61,13 +65,6 @@ for (var i = 0; i < 10000; i++) {
 
 console.log( pmem.result() );
 ```
-
-## Table Of Contents
-
-* [Getting Started](#getting-started)
-* About
-  - [Release History](#release-history)
-  - [License](#license)
 
 
 
@@ -80,7 +77,7 @@ console.log( pmem.result() );
   - Big Bang
 
 ## License
-Copyright (c) 2013 ME PRETTY
+Copyright (c) 2013 Thanasis Polychronakis
 Licensed under the [MIT](LICENSE-MIT).
 
 <sup>[↑ Back to TOC](#table-of-contents)</sup>
