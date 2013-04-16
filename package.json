@@ -18,7 +18,9 @@
     }
   ],
   "contributors": [],
-  "dependencies": {},
+  "dependencies": {
+    "microtime": "~0.3.3"
+  },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-release": "~0.3.3",

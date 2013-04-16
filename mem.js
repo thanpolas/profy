@@ -6,25 +6,83 @@
   // }
   //
 
+var memwatch = require('memwatch');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+
+/**
+ * The Mem consumption class
+ *
+ * @constructor
+ * @extends {events.EventEmitter}
+ */
 var Mem = module.exports = function() {
+  EventEmitter.call(this);
+
   this.heapStart = null;
   this.heaps = [];
+  this.tags = [];
+
+  this.heapDiffer =  null;
+  this._finished = false;
+  this._result = null;
+
+  this.gcCount = 0;
+
+  // how many GC cycles to wait before trigerring finish
+  this.gcTimes = 2;
 };
+util.inherits(Mem, EventEmitter);
 
 Mem.prototype._getMem = function() {
   return process.memoryUsage().heapUsed;
 };
 
 Mem.prototype.start = function() {
+  if (this.heapStart) {
+    throw new Error('Memory track already started');
+  }
   this.heapStart = this._getMem();
+  // this.heapDiffer = new memwatch.HeapDiff();
+  // memwatch.on('stats', this._onMemStats.bind(this));
 };
 
-Mem.prototype.log = function() {
+Mem.prototype._onMemStats = function checkMemory(info) {
+  this.gcCount++;
+
+  console.log('GC Count: ', this.gcCount, 'Info:\n', util.inspect(info, true, null));
+
+  if ( this.gcTimes > this.gcCount) {
+    return;
+  }
+  var diff = this.heapDiffer.end();
+  memwatch.removeListener('stats', this._onMemStats.bind(this));
+
+
+  console.log('Before heap info');
+  console.log(util.inspect(diff.before, true, null));
+
+  console.log('After heap info');
+  console.log(util.inspect(diff.after, true, null));
+
+  console.log('Heap changes');
+  console.log(util.inspect(diff.change, true, null));
+
+  this.emit('finish');
+};
+
+Mem.prototype.log = function(optsTag) {
+  if (this._finished) {
+    throw new Error('Memory track has finished');
+  }
   this.heaps.push(this._getMem());
+  var tag = ('undefined' === typeof optsTag ? '' : optsTag);
+  this.tags.push(tag);
+
 };
 
 Mem.prototype._getPercent = function(whole, fragment) {
-  return this._round(fragment / whole);
+  return this._round( ((fragment / whole) - 1) * 100);
 };
 
 Mem.prototype._round = function(num) {
@@ -32,33 +90,88 @@ Mem.prototype._round = function(num) {
 };
 
 Mem.prototype.result = function() {
+  if (this._finished) {
+    return this._result;
+  }
+  this._finished = true;
 
-  var max = 0;
-  var min = 0;
-  var curs = [];
-  var cur = 0;
+  var heapsCopy = Array.prototype.slice.call(this.heaps, 0);
+  heapsCopy.sort();
+  var max = heapsCopy[heapsCopy.length - 1];
+  var min = heapsCopy[0];
+
+  var maxPercent = this._getPercent(this.heapStart, max);
+  var minPercent = this._getPercent(this.heapStart, min);
+  var percentItems = [];
+  var curPercent = 0;
+
   this.heaps.forEach(function(heapUsed) {
-    cur = this._getPercent(this.heapStart, heapUsed);
-    max = (cur > max ? cur : max);
-    min = (cur < min ? cur : min);
-    curs.push(cur);
+    curPercent = this._getPercent(this.heapStart, heapUsed);
+    percentItems.push(curPercent);
   }, this);
 
   var totalLogs = this.heaps.length;
-  var mean = curs.reduce(function(a, b){return a+b;}) / totalLogs;
-  mean = this._round(mean);
-  var last = this._getPercent(this.heapStart, this.heaps[totalLogs - 1]);
 
-  return {
+  var mean = Math.floor(this.heaps.reduce(function(a,b){return a+b;}) / totalLogs);
+
+  var meanPercent = percentItems.reduce(function(a, b){return a+b;}) / totalLogs;
+  meanPercent = this._round(meanPercent);
+  var lastPercent = this._getPercent(this.heapStart, this.heaps[totalLogs - 1]);
+
+  this._result = {
     stats: {
-      max: max,
-      min: min,
-      mean: mean,
-      last: last
+      start: this.heapStart,
+      max: max - this.heapStart,
+      min: min - this.heapStart,
+      mean: mean - this.heapStart,
+      last: this.heaps[this.heaps.length - 1] - this.heapStart
+    },
+    percent: {
+      max: maxPercent,
+      min: minPercent,
+      mean: meanPercent,
+      last: lastPercent
     },
     heaps: this.heaps,
+    percentItems: percentItems,
     firstHeap: this.heapStart
   };
 
+  return this._result;
+
 };
 
+/**
+ * Alias for the result method
+ * @return {Object}
+ */
+Mem.prototype.stop = Mem.prototype.result;
+
+
+/**
+ * Return a fancy table in plain text.
+ * @return {string} perfomance stats.
+ */
+Mem.prototype.resultTable = function(optCsv) {
+  if (!this._finished) {
+    throw new Error('Not finished. Invoke "stop()" or "results()" to finish.');
+  }
+  var out = '';
+
+  this.heaps.forEach(function(heap, index) {
+    if (optCsv) {
+      out += index + ',' + this.heaps[index];
+      out += ',' + (this.heaps[index] - this.heapStart);
+      out += ',' + this._result.percentItems[index] + '%';
+      out += ',' + this.tags[index] + '\n';
+
+    } else {
+      out += index + '. ' + this.heaps[index];
+      out += ' [' + (this.heaps[index] - this.heapStart) + ']';
+      out += ' ( ' + this._result.percentItems[index] + '% )';
+      out += ' ' + this.tags[index] + '\n';
+    }
+  }, this);
+
+  return out;
+};
