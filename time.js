@@ -109,15 +109,26 @@ Timing.prototype.stop = Timing.prototype.result;
 
 /**
  * Return a fancy table in plain text.
+ *
+ * @param {string|Regex=} optFilt filter messages.
  * @return {string} perfomance stats.
  */
-Timing.prototype.resultTable = function() {
+Timing.prototype.resultTable = function(optFilt) {
   if (!this.finished) {
     throw new Error('Not finished. Invoke "stop()" or "results()" to finish.');
   }
   var out = '';
 
   this.logs.forEach(function(logStamp, index) {
+    if (optFilt) {
+      try {
+        if (!this.tags[index].match(optFilt)) {
+          return;
+        }
+      } catch(ex) {
+        return;
+      }
+    }
     out += index + '. ' + this.logs[index];
     out += ' [' + (this._result.diffs[index] / 1000) + ' ms] ';
     out += this.tags[index] + '\n';
