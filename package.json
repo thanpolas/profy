@@ -19,7 +19,8 @@
   ],
   "contributors": [],
   "dependencies": {
-    "microtime": "~0.3.3"
+    "microtime": "~0.3.3",
+    "memwatch": "~0.2.2"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

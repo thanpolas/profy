@@ -50,7 +50,7 @@ Mem.prototype.start = function() {
 Mem.prototype._onMemStats = function checkMemory(info) {
   this.gcCount++;
 
-  console.log('GC Count: ', this.gcCount, 'Info:\n', util.inspect(info, true, null));
+  // console.log('GC Count: ', this.gcCount, 'Info:\n', util.inspect(info, true, null));
 
   if ( this.gcTimes > this.gcCount) {
     return;
@@ -59,18 +59,24 @@ Mem.prototype._onMemStats = function checkMemory(info) {
   memwatch.removeListener('stats', this._onMemStats.bind(this));
 
 
-  console.log('Before heap info');
-  console.log(util.inspect(diff.before, true, null));
+  // console.log('Before heap info');
+  // console.log(util.inspect(diff.before, true, null));
 
-  console.log('After heap info');
-  console.log(util.inspect(diff.after, true, null));
+  // console.log('After heap info');
+  // console.log(util.inspect(diff.after, true, null));
 
-  console.log('Heap changes');
-  console.log(util.inspect(diff.change, true, null));
+  // console.log('Heap changes');
+  // console.log(util.inspect(diff.change, true, null));
 
   this.emit('finish');
 };
 
+/**
+ * Take a mem snapshot measurement and store it, optionally with a message
+ *
+ * @param  {string=} optsTag message.
+ * @return {number} the log index.
+ */
 Mem.prototype.log = function(optsTag) {
   if (this._finished) {
     throw new Error('Memory track has finished');
@@ -79,7 +85,30 @@ Mem.prototype.log = function(optsTag) {
   var tag = ('undefined' === typeof optsTag ? '' : optsTag);
   this.tags.push(tag);
 
+  return this.heaps.length - 1;
 };
+
+
+/**
+ * Get a single timing record.
+ * @param  {number} index the index.
+ * @return {Object} the object.
+ */
+Mem.prototype.get = function(index) {
+  if (!this._finished) {
+    throw new Error('Memory not finished');
+  }
+
+  var res = {
+    heap: this.heaps[index],
+    percent: this._result.percentItems[index],
+    tag: this.tags[index]
+  };
+
+  return res;
+
+};
+
 
 Mem.prototype._getPercent = function(whole, fragment) {
   return this._round( ((fragment / whole) - 1) * 100);

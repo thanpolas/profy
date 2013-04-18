@@ -33,6 +33,12 @@ Timing.prototype.start = function() {
   this.startTime = this.t.get();
 };
 
+/**
+ * Create a log in time, optionally with a message
+ *
+ * @param  {string=} optsTag message.
+ * @return {number} the log index.
+ */
 Timing.prototype.log = function(optsTag) {
   if (this.finished) {
     throw new Error('Timer has finished');
@@ -40,8 +46,29 @@ Timing.prototype.log = function(optsTag) {
   this.logs.push(this.t.get());
   var tag = ('undefined' === typeof optsTag ? '' : optsTag);
   this.tags.push(tag);
+
+  return this.logs.length - 1;
 };
 
+/**
+ * Get a single timing record.
+ * @param  {number} index the index.
+ * @return {Object} the object.
+ */
+Timing.prototype.get = function(index) {
+  if (!this.finished) {
+    throw new Error('Timer not finished');
+  }
+
+  var res = {
+    time: this.logs[index],
+    diff: this._result.diffs[index],
+    tag: this.tags[index]
+  };
+
+  return res;
+
+};
 
 Timing.prototype._getPercent = function(whole, fragment) {
   return this._round(fragment / whole);
@@ -58,7 +85,7 @@ Timing.prototype.result = function() {
   this.finished = true;
 
   var max = 0;
-  var min = 0;
+  var min = 999999;
   var diffs = [];
   this.logs.forEach(function(stamp, index) {
     // console.log('stamp:', stamp, index, !_.isNumber(this.logs[index - 1]), stamp - this.logs[index - 1], this.tags[index]);
@@ -131,7 +158,7 @@ Timing.prototype.resultTable = function(optFilt) {
     }
     out += index + '. ' + this.logs[index];
     out += ' [' + (this._result.diffs[index] / 1000) + ' ms] ';
-    out += this.tags[index] + '\n';
+    out += this.tags[index];
   }, this);
 
   return out;
