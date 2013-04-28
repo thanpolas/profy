@@ -158,7 +158,7 @@ Timing.prototype.resultTable = function(optFilt) {
     }
     out += index + '. ' + this.logs[index];
     out += ' [' + (this._result.diffs[index] / 1000) + ' ms] ';
-    out += this.tags[index];
+    out += this.tags[index] + (optFilt ? '' : '\n');
   }, this);
 
   return out;
