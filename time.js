@@ -22,7 +22,6 @@ Timing.getSingleton = function() {
   if (_singleton) {
     return _singleton;
   }
-
   return (_singleton = new Timing());
 };
 
@@ -89,14 +88,18 @@ Timing.prototype.result = function() {
   var diffs = [];
   this.logs.forEach(function(stamp, index) {
     // console.log('stamp:', stamp, index, !_.isNumber(this.logs[index - 1]), stamp - this.logs[index - 1], this.tags[index]);
+    var diff;
     if (!this.logs[index - 1]) {
-      diffs.push(NaN);
-      return;
+      // first log record
+      diff = this.startTime - stamp;
+    } else {
+      diff = stamp - this.logs[index - 1];
     }
-    var diff = stamp - this.logs[index - 1];
+
     diffs.push(diff);
-    max = (diff > max ? diff : max) / 1000;
-    min = (diff < min ? diff : min) / 1000;
+    var diffMs = diff / 1000;
+    max = (diffMs > max ? diffMs : max);
+    min = (diffMs < min ? diffMs : min);
   }, this);
 
   var totalLogs = this.logs.length;
