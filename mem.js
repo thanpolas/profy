@@ -149,11 +149,9 @@ Mem.prototype.result = function() {
 
   this._result = {
     stats: {
-      start: this.heapStart,
       max: max - this.heapStart,
       min: min - this.heapStart,
-      mean: mean - this.heapStart,
-      last: this.heaps[this.heaps.length - 1] - this.heapStart
+      mean: mean - this.heapStart
     },
     percent: {
       max: maxPercent,
@@ -161,9 +159,11 @@ Mem.prototype.result = function() {
       mean: meanPercent,
       last: lastPercent
     },
+    lastHeap: this.heaps[this.heaps.length - 1] - this.heapStart,
+    firstHeap: this.heapStart,
     heaps: this.heaps,
     percentItems: percentItems,
-    firstHeap: this.heapStart
+    tags: this.tags
   };
 
   return this._result;
