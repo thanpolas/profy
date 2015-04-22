@@ -6,7 +6,6 @@
   // }
   //
 
-var memwatch = require('memwatch');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
@@ -44,31 +43,6 @@ Mem.prototype.start = function() {
   }
   this.heapStart = this._getMem();
   // this.heapDiffer = new memwatch.HeapDiff();
-  // memwatch.on('stats', this._onMemStats.bind(this));
-};
-
-Mem.prototype._onMemStats = function checkMemory(info) {
-  this.gcCount++;
-
-  // console.log('GC Count: ', this.gcCount, 'Info:\n', util.inspect(info, true, null));
-
-  if ( this.gcTimes > this.gcCount) {
-    return;
-  }
-  var diff = this.heapDiffer.end();
-  memwatch.removeListener('stats', this._onMemStats.bind(this));
-
-
-  // console.log('Before heap info');
-  // console.log(util.inspect(diff.before, true, null));
-
-  // console.log('After heap info');
-  // console.log(util.inspect(diff.after, true, null));
-
-  // console.log('Heap changes');
-  // console.log(util.inspect(diff.change, true, null));
-
-  this.emit('finish');
 };
 
 /**
