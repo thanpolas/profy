@@ -260,6 +260,8 @@ console.log( mem.result() );
 ```
 
 ## Release History
+- **v0.1.0**, *21 Apr 2015*
+  - Node v0.12.x compatible, upgraded all deps to latest.
 - **v0.0.5**, *29 Apr 2013*
   - API cleanup, documentation
   - Bug fixes
