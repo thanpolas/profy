@@ -260,6 +260,8 @@ console.log( mem.result() );
 ```
 
 ## Release History
+- **v1.0.0**, *05 Feb 2016*
+  - Upgraded all packages to latest.
 - **v0.1.1**, *21 Apr 2015*
   - Removed `memwatch` package, wasn't being used anyway.
 - **v0.1.0**, *21 Apr 2015*
