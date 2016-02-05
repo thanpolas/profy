@@ -19,12 +19,12 @@
   ],
   "contributors": [],
   "dependencies": {
-    "microtime": "~1.3.0"
+    "microtime": "~2.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
-    "grunt-release": "~0.12.0",
-    "matchdep": "~0.3.0"
+    "grunt-release": "~0.13.0",
+    "matchdep": "~1.0.0"
   },
   "engines": {
     "node": ">=0.8.0"
